@@ -1,135 +1,3 @@
-// const express = require("express");
-// const cors = require("cors");
-// const pool = require("./db");
-
-// const app = express();
-
-// app.use(cors());
-
-
-// // TRM MANUAL
-// const TRM = 3800;
-
-// app.get("/", (req, res) => {
-
-//     res.send("API running");
-// });
-
-
-// // PRODUCTS PAGINATED
-// app.get("/products", async (req, res) => {
-
-//     try {
-
-//         const page = parseInt(req.query.page) || 1;
-
-//         const limit = 40;
-
-//         const offset = (page - 1) * limit;
-
-//         const result = await pool.query(
-//             `
-//             SELECT
-//                 p.*,
-
-//                 COALESCE(
-//                     json_agg(
-//                         json_build_object(
-//                             'size', pv.title,
-//                             'available', pv.available
-//                         )
-//                     ) FILTER (WHERE pv.id IS NOT NULL),
-//                     '[]'
-//                 ) as variants
-
-//             FROM products p
-
-//             LEFT JOIN product_variants pv
-//                 ON pv.product_id = p.id
-
-//             GROUP BY p.id
-
-//             ORDER BY p.price ASC
-
-//             LIMIT $1
-//             OFFSET $2
-//             `,
-//             [limit, offset]
-//         );
-
-//         // CALCULATE COP PRICE
-//         const products = result.rows.map(product => {
-
-//             const usd = Number(product.price || 0);
-
-//             const cop = ((usd * 1.5) + 20) * TRM;
-
-//             return {
-//                 ...product,
-
-//                 price_cop: Math.round(cop)
-//             };
-//         });
-
-//         res.json(products);
-
-//     } catch (error) {
-
-//         console.log(error);
-
-//         res.status(500).json({
-//             error: error.message
-//         });
-//     }
-// });
-
-
-// // ONLY PUMA
-// app.get("/products/puma", async (req, res) => {
-
-//     try {
-
-//         const result = await pool.query(
-//             `
-//             SELECT *
-//             FROM products
-//             WHERE vendor = 'PUMA'
-//             `
-//         );
-
-//         const products = result.rows.map(product => {
-
-//             const usd = Number(product.price || 0);
-
-//             const cop = ((usd * 1.5) + 20) * TRM;
-
-//             return {
-//                 ...product,
-
-//                 price_cop: Math.round(cop)
-//             };
-//         });
-
-//         res.json(products);
-
-//     } catch (error) {
-
-//         console.log(error);
-
-//         res.status(500).json({
-//             error: error.message
-//         });
-//     }
-// });
-
-
-// // START SERVER
-
-// app.listen(3001, "0.0.0.0", () => {
-
-//     console.log("API running");
-// });
-
 const express = require("express");
 const cors = require("cors");
 const pool = require("./db");
@@ -327,7 +195,13 @@ app.get("/products/puma", async (req, res) => {
 
 // START SERVER
 
-app.listen(3001, "0.0.0.0", () => {
+// app.listen(3001, "0.0.0.0", () => {
 
+//     console.log("API running");
+// });
+
+const PORT = process.env.PORT || 3001;
+
+app.listen(PORT, () => {
     console.log("API running");
 });
