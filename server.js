@@ -33,6 +33,8 @@ app.get("/products", async (req, res) => {
 
         const size = req.query.size || "";
 
+        const color = req.query.color || "";
+
         let whereClauses = [];
 
         let values = [];
@@ -73,6 +75,23 @@ app.get("/products", async (req, res) => {
             paramCount++;
         }
 
+        // FILTER COLOR
+
+if (color) {
+
+    whereClauses.push(`
+        EXISTS (
+            SELECT 1
+            FROM unnest(p.tags) tag
+            WHERE lower(tag)
+            LIKE lower($${paramCount})
+        )
+    `);
+
+    values.push(`%color::%${color}%`);
+
+    paramCount++;
+}
 
         // BUILD WHERE
 

@@ -134,46 +134,92 @@ async function syncProducts() {
                     activeProductIds.push(product.id);
 
                     // INSERT PRODUCT
-                    await pool.query(
-                        `
-                        INSERT INTO products
-                        (
-                            id,
-                            title,
-                            handle,
-                            vendor,
-                            product_type,
-                            price,
-                            image,
-                            body_html,
-                            gender,
-                            created_at,
-                            updated_at
-                        )
-                        VALUES
-                        ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+                    // await pool.query(
+                    //     `
+                    //     INSERT INTO products
+                    //     (
+                    //         id,
+                    //         title,
+                    //         handle,
+                    //         vendor,
+                    //         product_type,
+                    //         price,
+                    //         image,
+                    //         body_html,
+                    //         gender,
+                    //         created_at,
+                    //         updated_at
+                    //     )
+                    //     VALUES
+                    //     ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
 
-                        ON CONFLICT (id)
-                        DO UPDATE SET
-                            title = EXCLUDED.title,
-                            price = EXCLUDED.price,
-                            gender = EXCLUDED.gender,
-                            updated_at = EXCLUDED.updated_at
-                        `,
-                        [
-                            product.id,
-                            product.title,
-                            product.handle,
-                            product.vendor,
-                            product.product_type,
-                            minPrice,
-                            product.images?.[0]?.src || null,
-                            product.body_html,
-                            gender,
-                            product.created_at,
-                            product.updated_at
-                        ]
-                    );
+                    //     ON CONFLICT (id)
+                    //     DO UPDATE SET
+                    //         title = EXCLUDED.title,
+                    //         price = EXCLUDED.price,
+                    //         gender = EXCLUDED.gender,
+                    //         updated_at = EXCLUDED.updated_at
+                    //     `,
+                    //     [
+                    //         product.id,
+                    //         product.title,
+                    //         product.handle,
+                    //         product.vendor,
+                    //         product.product_type,
+                    //         minPrice,
+                    //         product.images?.[0]?.src || null,
+                    //         product.body_html,
+                    //         gender,
+                    //         product.created_at,
+                    //         product.updated_at
+                    //     ]
+                    // );
+
+                    await pool.query(
+`
+INSERT INTO products
+(
+    id,
+    title,
+    handle,
+    vendor,
+    product_type,
+    price,
+    image,
+    body_html,
+    gender,
+    tags,
+    created_at,
+    updated_at
+)
+VALUES
+(
+    $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12
+)
+
+ON CONFLICT (id)
+DO UPDATE SET
+    title = EXCLUDED.title,
+    price = EXCLUDED.price,
+    gender = EXCLUDED.gender,
+    tags = EXCLUDED.tags,
+    updated_at = EXCLUDED.updated_at
+`,
+[
+    product.id,
+    product.title,
+    product.handle,
+    product.vendor,
+    product.product_type,
+    minPrice,
+    product.images?.[0]?.src || null,
+    product.body_html,
+    gender,
+    product.tags, // ← aquí
+    product.created_at,
+    product.updated_at
+]
+);
 
                     // INSERT VARIANTS
                     for (const variant of product.variants) {
