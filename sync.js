@@ -84,10 +84,6 @@ async function syncProducts() {
                         continue;
                     }
 
-                    // if (product.tags.includes("Kids")) {
-                    //     continue;
-                    // }
-
                     // SOLO PRODUCTOS CON STOCK
 
                     const availableVariants = product.variants.filter(
@@ -117,13 +113,6 @@ async function syncProducts() {
                     // DETECTAR GÉNERO
                     let gender = "Unisex";
 
-                    // if (product.tags.includes("Mens")) {
-                    //     gender = "Hombre";
-                    // }
-                    // else if (product.tags.includes("Womens")) {
-                    //     gender = "Mujer";
-                    // }
-
                     if (tags.includes("mens")) {
                         gender = "Hombre";
                     }
@@ -133,93 +122,51 @@ async function syncProducts() {
 
                     activeProductIds.push(product.id);
 
-                    // INSERT PRODUCT
-                    // await pool.query(
-                    //     `
-                    //     INSERT INTO products
-                    //     (
-                    //         id,
-                    //         title,
-                    //         handle,
-                    //         vendor,
-                    //         product_type,
-                    //         price,
-                    //         image,
-                    //         body_html,
-                    //         gender,
-                    //         created_at,
-                    //         updated_at
-                    //     )
-                    //     VALUES
-                    //     ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
-
-                    //     ON CONFLICT (id)
-                    //     DO UPDATE SET
-                    //         title = EXCLUDED.title,
-                    //         price = EXCLUDED.price,
-                    //         gender = EXCLUDED.gender,
-                    //         updated_at = EXCLUDED.updated_at
-                    //     `,
-                    //     [
-                    //         product.id,
-                    //         product.title,
-                    //         product.handle,
-                    //         product.vendor,
-                    //         product.product_type,
-                    //         minPrice,
-                    //         product.images?.[0]?.src || null,
-                    //         product.body_html,
-                    //         gender,
-                    //         product.created_at,
-                    //         product.updated_at
-                    //     ]
-                    // );
-
                     await pool.query(
-`
-INSERT INTO products
-(
-    id,
-    title,
-    handle,
-    vendor,
-    product_type,
-    price,
-    image,
-    body_html,
-    gender,
-    tags,
-    created_at,
-    updated_at
-)
-VALUES
-(
-    $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12
-)
+                        `
+                        INSERT INTO products
+                        (
+                            id,
+                            title,
+                            handle,
+                            vendor,
+                            product_type,
+                            price,
+                            image,
+                            body_html,
+                            gender,
+                            tags,
+                            created_at,
+                            updated_at
+                        )
+                        VALUES
+                        (
+                            $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12
+                        )
 
-ON CONFLICT (id)
-DO UPDATE SET
-    title = EXCLUDED.title,
-    price = EXCLUDED.price,
-    gender = EXCLUDED.gender,
-    tags = EXCLUDED.tags,
-    updated_at = EXCLUDED.updated_at
-`,
-[
-    product.id,
-    product.title,
-    product.handle,
-    product.vendor,
-    product.product_type,
-    minPrice,
-    product.images?.[0]?.src || null,
-    product.body_html,
-    gender,
-    product.tags, // ← aquí
-    product.created_at,
-    product.updated_at
-]
-);
+                        ON CONFLICT (id)
+                        DO UPDATE SET
+                            title = EXCLUDED.title,
+                            price = EXCLUDED.price,
+                            gender = EXCLUDED.gender,
+                            tags = EXCLUDED.tags,
+                            updated_at = EXCLUDED.updated_at
+                        `,
+                        [
+                            product.id,
+                            product.title,
+                            product.handle,
+                            product.vendor,
+                            product.product_type,
+                            minPrice,
+                            product.images?.[0]?.src || null,
+                            product.body_html,
+                            gender,
+                            product.tags, // ← aquí
+                            product.created_at,
+                            product.updated_at
+                        ]
+                        );
 
                     // INSERT VARIANTS
                     for (const variant of product.variants) {
@@ -263,15 +210,6 @@ DO UPDATE SET
 
                 page++;
 
-            // } catch (error) {
-
-            //     console.log("ERROR:");
-            //     console.log(error.message);
-
-            //     break;
-            
-            //}
-
             } catch (error) {
 
                 console.log("ERROR:");
@@ -292,9 +230,7 @@ DO UPDATE SET
     }
 
 
-        console.log(
-            `Active products: ${activeProductIds.length}`
-        );
+        console.log(`Active products: ${activeProductIds.length}`);
 
     if (activeProductIds.length > 0) {
 
@@ -321,41 +257,7 @@ DO UPDATE SET
         `Deleted products: ${deletedProducts.rowCount}`
     );
 
-
-    // await pool.query(
-    //     `
-    //     DELETE FROM product_variants
-    //     WHERE product_id NOT IN (${activeProductIds.join(",")})
-    //     `
-    // );
-
-    // await pool.query(
-    //     `
-    //     DELETE FROM products
-    //     WHERE id NOT IN (${activeProductIds.join(",")})
-    //     `
-    // );
-
-    // console.log("Old products deleted");
 }
-
-
-    // await pool.query(
-    // `
-    //     DELETE FROM product_variants
-    //     WHERE product_id NOT IN (${activeProductIds.join(",")})
-    //     `
-    // );
-
-    // await pool.query(
-    //     `
-    //     DELETE FROM products
-    //     WHERE id NOT IN (${activeProductIds.join(",")})
-    //     `
-    // );
-
-    // console.log("Old products deleted");    
-
 
     console.log("SYNC COMPLETE");
 }
