@@ -146,11 +146,16 @@ async function syncProducts() {
 
                         ON CONFLICT (id)
                         DO UPDATE SET
-                            title = EXCLUDED.title,
-                            price = EXCLUDED.price,
-                            gender = EXCLUDED.gender,
-                            tags = EXCLUDED.tags,
-                            updated_at = EXCLUDED.updated_at
+    title = EXCLUDED.title,
+    handle = EXCLUDED.handle,
+    vendor = EXCLUDED.vendor,
+    product_type = EXCLUDED.product_type,
+    price = EXCLUDED.price,
+    image = EXCLUDED.image,
+    body_html = EXCLUDED.body_html,
+    gender = EXCLUDED.gender,
+    tags = EXCLUDED.tags,
+    updated_at = EXCLUDED.updated_at
                         `,
                         [
                             product.id,
@@ -167,6 +172,77 @@ async function syncProducts() {
                             product.updated_at
                         ]
                         );
+
+
+
+
+
+
+
+
+
+// SYNC IMAGES
+
+const currentImageIds = [];
+
+for (const image of (product.images || [])) {
+
+    currentImageIds.push(image.id);
+
+    await pool.query(
+        `
+        INSERT INTO product_images
+        (
+            id,
+            product_id,
+            image_url,
+            position
+        )
+        VALUES
+        (
+            $1,$2,$3,$4
+        )
+
+        ON CONFLICT (id)
+        DO UPDATE SET
+            image_url = EXCLUDED.image_url,
+            position = EXCLUDED.position
+        `,
+        [
+            image.id,
+            product.id,
+            image.src,
+            image.position
+        ]
+    );
+}
+
+// ELIMINAR IMÁGENES QUE YA NO EXISTEN
+
+if (currentImageIds.length > 0) {
+
+    await pool.query(
+        `
+        DELETE FROM product_images
+        WHERE product_id = $1
+        AND NOT (id = ANY($2))
+        `,
+        [
+            product.id,
+            currentImageIds
+        ]
+    );
+}
+
+
+
+
+
+
+
+
+
+
 
                     // INSERT VARIANTS
                     for (const variant of product.variants) {
@@ -223,8 +299,6 @@ async function syncProducts() {
 
                 continue;
             }
-
-
 
         }
     }

@@ -114,15 +114,31 @@ if (color) {
             SELECT
                 p.*,
 
-                COALESCE(
-                    json_agg(
-                        json_build_object(
-                            'size', pv.title,
-                            'available', pv.available
-                        )
-                    ) FILTER (WHERE pv.id IS NOT NULL),
-                    '[]'
-                ) as variants
+COALESCE(
+    json_agg(
+        DISTINCT jsonb_build_object(
+            'size', pv.title,
+            'available', pv.available
+        )
+    ) FILTER (WHERE pv.id IS NOT NULL),
+    '[]'
+) as variants,
+
+COALESCE(
+    (
+        SELECT json_agg(
+            json_build_object(
+                'id', pi.id,
+                'url', pi.image_url,
+                'position', pi.position
+            )
+            ORDER BY pi.position
+        )
+        FROM product_images pi
+        WHERE pi.product_id = p.id
+    ),
+    '[]'
+) as images
 
             FROM products p
 
