@@ -8,8 +8,10 @@ async function syncProducts() {
     // COLECCIONES
     const collections = [
         "puma",
+        "adidas",
         "mens-sneakers",
-        "puma-sneakers"
+        "puma-sneakers",
+        "adidas-sneakers"
     ];
 
     // EVITAR DUPLICADOS
@@ -66,7 +68,8 @@ async function syncProducts() {
 
                     if (
                         collection === "mens-sneakers" &&
-                        product.vendor !== "PUMA"
+                        product.vendor !== "PUMA" &&
+                        product.vendor !== "ADIDAS"
                     ) {
                         continue;
                     }
@@ -233,15 +236,6 @@ if (currentImageIds.length > 0) {
         ]
     );
 }
-
-
-
-
-
-
-
-
-
 
 
                     // INSERT VARIANTS
